@@ -69,6 +69,7 @@ end
 dirty = Set.new
 
 # Set initial pattern.
+
 File.open(ARGV[0], "r") do |file|
   slot = 0
   file.each do |line|
@@ -81,6 +82,8 @@ File.open(ARGV[0], "r") do |file|
   end
 end
 
+# Solve as far as we can.
+
 while !dirty.empty?
   slot = dirty.first
   if slot.possible.size == 1
@@ -88,6 +91,8 @@ while !dirty.empty?
   end
   dirty.delete(slot)
 end
+
+# Print the output.
 
 slots.each_slice(27) do |rows|
   rows.each_slice(9) do |row|
