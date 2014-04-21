@@ -6,20 +6,33 @@ class Slot
   def initialize(number)
     @number = number
     @possible = [1,2,3,4,5,6,7,8,9]
+    @placed = nil
     @sets = nil
   end
 
+  def inspect
+    "#{@number}: #{@possible.to_s}"
+  end
+
   def place(digit, dirty)
-    # puts "placing #{digit} in slot #{@number}"
     @sets.each do |slot|
       slot.not_possible(digit, dirty)
     end
     @possible = [digit]
+    @placed = digit
     dirty.delete(self)
   end
 
   def possible
     @possible
+  end
+
+  def number  # debug
+    @number
+  end
+
+  def placed
+    @placed
   end
 
   def not_possible(digit, dirty)
@@ -62,9 +75,36 @@ slots = (0..80).map do |number|
   Slot.new(number)
 end
 
+$slots = slots # debug
+
 slots.each do |slot|
   slot.make_sets(slots)
 end
+
+# Each slot goes into a row, col, and square.
+
+rows = (0..8).map do |row|
+  (0..8).map do |col|
+    slots[row*9 + col]
+  end
+end
+
+cols = (0..8).map do |col|
+  (0..8).map do |row|
+    slots[row*9 + col]
+  end
+end
+
+squares = (0..8).map do |square|
+  # row and col of upper left corner of square
+  row = square / 3 * 3
+  col = square % 3 * 3
+  (0..8).map do |n|
+    slots[(row + n/3)*9 + (col + n%3)]
+  end
+end
+
+sets = rows + cols + squares
 
 dirty = Set.new
 
@@ -82,15 +122,56 @@ File.open(ARGV[0], "r") do |file|
   end
 end
 
-# Solve as far as we can.
-
-while !dirty.empty?
-  slot = dirty.first
-  if slot.possible.size == 1
-    slot.place(slot.possible.first, dirty)
-  end
-  dirty.delete(slot)
+def dump
+        $slots.each_slice(27) do |rows|
+          rows.each_slice(9) do |row|
+            row.each_slice(3) do |slots|
+              slots.each do |xslot|
+                if xslot.placed
+                  print xslot.placed
+                else
+                  print "-"
+                end
+              end
+              print " "
+            end
+            puts
+          end
+          puts
+        end
 end
+
+begin
+  # Place all the digits in slots that have only one possible digit.
+
+  while !dirty.empty?
+    slot = dirty.first
+    if slot.possible.size == 1
+      puts "placing forced #{slot.possible.first} in slot #{slot.number}"
+      dump
+      slot.place(slot.possible.first, dirty)
+    end
+    dirty.delete(slot)
+  end
+end while sets.map do |set|
+  # Try to place a digit where a set is missing a single digit, and repeat
+  # if a digit was placed.
+  (1..9).map do |digit|
+    # Does the set contain only one slot that allows the digit?
+    slots_for_digit = set.select do |slot|
+      slot.placed.nil? && slot.possible.any?{|x| x == digit}
+    end
+    if slots_for_digit.size == 1
+
+      puts "placing missing #{digit} in slot #{slots_for_digit.first.number}"
+      #puts set.map{|x| x.number}.to_s
+      dump
+
+      slots_for_digit.first.place(digit, dirty)
+      true
+    end
+  end
+end.flatten.compact.size != 0
 
 # Print the output.
 
@@ -98,8 +179,8 @@ slots.each_slice(27) do |rows|
   rows.each_slice(9) do |row|
     row.each_slice(3) do |slots|
       slots.each do |slot|
-        if slot.possible.size == 1
-          print slot.possible.first
+        if slot.placed
+          print slot.placed
         else
           print "-"
         end
