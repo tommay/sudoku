@@ -153,10 +153,10 @@ begin
     end
     dirty.delete(slot)
   end
-end while sets.map do |set|
-  # Try to place a digit where a set is missing a single digit, and repeat
-  # if a digit was placed.
-  (1..9).map do |digit|
+end while sets.find do |set|
+  # Try to place a digit where a set is missing a single digit, and return
+  # true if a digit was placed.
+  (1..9).find do |digit|
     # Does the set contain only one slot that allows the digit?
     slots_for_digit = set.select do |slot|
       slot.placed.nil? && slot.possible.any?{|x| x == digit}
@@ -171,7 +171,7 @@ end while sets.map do |set|
       true
     end
   end
-end.flatten.compact.size != 0
+end
 
 # Print the output.
 
