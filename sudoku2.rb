@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require "set"
-
 class Slot
   def initialize(number)
     # The ordinal number of this Slot.
@@ -18,13 +16,14 @@ class Slot
     "#{@number}: #{@possible.to_s}"
   end
 
-  def place(digit, dirty)
-    @sets.each do |slot|
-      slot.not_possible(digit, dirty)
-    end
-    @possible = [digit]
+  def place(digit)
     @placed = digit
-    dirty.delete(self)
+    @possible = [digit]
+    @sets.each do |slot|
+      if slot != self
+        slot.not_possible(digit)
+      end
+    end
   end
 
   def possible
@@ -39,10 +38,31 @@ class Slot
     @placed
   end
 
-  def not_possible(digit, dirty)
+  def not_possible(digit)
     if @possible.delete(digit) && @possible.size == 1
-      dirty.add(self)
+      puts "placing forced #{@possible.first} in slot #{@number}"
+      dump
+      place(@possible.first)
     end
+  end
+
+  def dump
+        $slots.each_slice(27) do |rows|
+          rows.each_slice(9) do |row|
+            row.each_slice(3) do |slots|
+              slots.each do |xslot|
+                if xslot.placed
+                  print xslot.placed
+                else
+                  print "-"
+                end
+              end
+              print " "
+            end
+            puts
+          end
+          puts
+        end
   end
 
   def make_sets(slots)
@@ -110,13 +130,12 @@ end
 
 sets = rows + cols + squares
 
-dirty = Set.new
-
 # Set initial pattern.
 
 File.read(ARGV[0]).gsub(/\s/, "").each_char.zip(slots) do |c, slot|
   if c != "-"
-    slot.place(c.to_i, dirty)
+    puts "placing initial #{c} in slot #{slot.number}"
+    slot.place(c.to_i)
   end
 end
 
@@ -139,17 +158,7 @@ def dump
         end
 end
 
-begin
-  # Place all the digits in slots that have only one possible digit.
-
-  while !dirty.empty?
-    slot = dirty.first
-    puts "placing forced #{slot.possible.first} in slot #{slot.number}"
-    dump
-    slot.place(slot.possible.first, dirty)
-    dirty.delete(slot)
-  end
-end while sets.find do |set|
+while (sets.find do |set|
   # Try to place a digit where a set is missing a single digit, and return
   # true if a digit was placed.
   (1..9).find do |digit|
@@ -163,10 +172,11 @@ end while sets.find do |set|
       #puts set.map{|x| x.number}.to_s
       dump
 
-      slots_for_digit.first.place(digit, dirty)
+      slots_for_digit.first.place(digit)
       true
     end
   end
+end) do
 end
 
 # Print the output.
