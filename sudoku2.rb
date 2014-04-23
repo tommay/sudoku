@@ -8,8 +8,8 @@ class Slot
     @possible = [1,2,3,4,5,6,7,8,9]
     # The digit finally placed in this slot.
     @placed = nil
-    # The sets of Slots (row, col, square) this Slot belongs to.
-    @sets = nil
+    # Array of all Slots in the same row, col, or square as this Slot.
+    @exclusive = nil
   end
 
   def inspect
@@ -19,7 +19,7 @@ class Slot
   def place(digit)
     @placed = digit
     @possible = [digit]
-    @sets.each do |slot|
+    @exclusive.each do |slot|
       if slot != self
         slot.not_possible(digit)
       end
@@ -65,8 +65,8 @@ class Slot
         end
   end
 
-  def make_sets(slots)
-    @sets = same_row(@number, slots) +
+  def make_exclusive(slots)
+    @exclusive = same_row(@number, slots) +
       same_col(@number, slots) +
       same_square(@number, slots)
   end
@@ -102,7 +102,7 @@ end
 $slots = slots # debug
 
 slots.each do |slot|
-  slot.make_sets(slots)
+  slot.make_exclusive(slots)
 end
 
 # Each slot goes into a row, col, and square.
