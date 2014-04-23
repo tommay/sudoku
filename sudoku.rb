@@ -160,7 +160,9 @@ while (sets.find do |set|
 end) do
 end
 
-# Print the output.
+# Print the solved puzzle.
+
+puts "Solved:"
 
 slots.each_slice(27) do |rows|
   rows.each_slice(9) do |row|
