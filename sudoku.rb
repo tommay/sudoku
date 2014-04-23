@@ -132,7 +132,7 @@ sets = rows + cols + squares
 
 # Set initial pattern.
 
-File.read(ARGV[0]).gsub(/\s/, "").each_char.zip(slots) do |c, slot|
+File.read(ARGV[0]).gsub(/#.*/, "").gsub(/\s/, "").each_char.zip(slots) do |c, slot|
   if c != "-"
     puts "placing initial #{c} in slot #{slot.number}"
     slot.place(c.to_i)
