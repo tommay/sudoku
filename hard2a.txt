@@ -1,0 +1,15 @@
+# This is hard2.txt with a 3 in the top row to make it solvable.
+# There is another solution with the 3 in the top right corner,
+# see hard2b.txt.
+
+-69 -51 -3-
+2-- --- 6--
+1-- --8 2-9
+
+--- -49 ---
+--8 --- 4--
+--- 72- ---
+
+8-7 4-- --6
+--5 --- --8
+--- 38- 19-
