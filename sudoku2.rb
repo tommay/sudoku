@@ -4,9 +4,13 @@ require "set"
 
 class Slot
   def initialize(number)
+    # The ordinal number of this Slot.
     @number = number
+    # The possible digits this Slot may contain.
     @possible = [1,2,3,4,5,6,7,8,9]
+    # The digit finally placed in this slot.
     @placed = nil
+    # The sets of Slots (row, col, square) this Slot belongs to.
     @sets = nil
   end
 
