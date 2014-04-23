@@ -9,7 +9,7 @@ class Slot
     # The digit finally placed in this slot.
     @placed = nil
     # Array of all Slots in the same row, col, or square as this Slot.
-    @exclusive = nil
+    @exclusive_with = nil
     # Array of all Slots, for output.
     @slots = nil
   end
@@ -21,7 +21,7 @@ class Slot
   def place(digit)
     @placed = digit
     @possible = [digit]
-    @exclusive.each do |slot|
+    @exclusive_with.each do |slot|
       slot.not_possible(digit)
     end
   end
@@ -65,8 +65,8 @@ class Slot
     end
   end
 
-  def make_exclusive(slots)
-    @exclusive = same_row(@number, slots) +
+  def make_exclusive_with(slots)
+    @exclusive_with = same_row(@number, slots) +
       same_col(@number, slots) +
       same_square(@number, slots) -
       [self]
@@ -102,7 +102,7 @@ slots = (0..80).map do |number|
 end
 
 slots.each do |slot|
-  slot.make_exclusive(slots)
+  slot.make_exclusive_with(slots)
 end
 
 # Each slot goes into a row, col, and square.
