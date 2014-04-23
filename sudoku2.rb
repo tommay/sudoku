@@ -110,15 +110,9 @@ dirty = Set.new
 
 # Set initial pattern.
 
-File.open(ARGV[0], "r") do |file|
-  slot = 0
-  file.each do |line|
-    line.gsub(/\s/, "").each_char do |c|
-      if c != "-"
-        slots[slot].place(c.to_i, dirty)
-      end
-      slot += 1
-    end
+File.read(ARGV[0]).gsub(/\s/, "").each_char.zip(slots) do |c, slot|
+  if c != "-"
+    slot.place(c.to_i, dirty)
   end
 end
 
