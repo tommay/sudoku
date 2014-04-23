@@ -40,7 +40,7 @@ class Slot
   end
 
   def not_possible(digit, dirty)
-    if @possible.delete(digit)
+    if @possible.delete(digit) && @possible.size == 1
       dirty.add(self)
     end
   end
@@ -144,11 +144,9 @@ begin
 
   while !dirty.empty?
     slot = dirty.first
-    if slot.possible.size == 1
-      puts "placing forced #{slot.possible.first} in slot #{slot.number}"
-      dump
-      slot.place(slot.possible.first, dirty)
-    end
+    puts "placing forced #{slot.possible.first} in slot #{slot.number}"
+    dump
+    slot.place(slot.possible.first, dirty)
     dirty.delete(slot)
   end
 end while sets.find do |set|
