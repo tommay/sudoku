@@ -22,9 +22,7 @@ class Slot
     @placed = digit
     @possible = [digit]
     @exclusive.each do |slot|
-      if slot != self
-        slot.not_possible(digit)
-      end
+      slot.not_possible(digit)
     end
   end
 
@@ -70,7 +68,8 @@ class Slot
   def make_exclusive(slots)
     @exclusive = same_row(@number, slots) +
       same_col(@number, slots) +
-      same_square(@number, slots)
+      same_square(@number, slots) -
+      [self]
     @slots = slots
   end
 
