@@ -10,6 +10,8 @@ class Slot
     @placed = nil
     # Array of all Slots in the same row, col, or square as this Slot.
     @exclusive = nil
+    # Array of all Slots, for output.
+    @slots = nil
   end
 
   def inspect
@@ -47,28 +49,29 @@ class Slot
   end
 
   def dump
-        $slots.each_slice(27) do |rows|
-          rows.each_slice(9) do |row|
-            row.each_slice(3) do |slots|
-              slots.each do |xslot|
-                if xslot.placed
-                  print xslot.placed
-                else
-                  print "-"
-                end
-              end
-              print " "
+    @slots.each_slice(27) do |rows|
+      rows.each_slice(9) do |row|
+        row.each_slice(3) do |slots|
+          slots.each do |slot|
+            if slot.placed
+              print slot.placed
+            else
+              print "-"
             end
-            puts
           end
-          puts
+          print " "
         end
+        puts
+      end
+      puts
+    end
   end
 
   def make_exclusive(slots)
     @exclusive = same_row(@number, slots) +
       same_col(@number, slots) +
       same_square(@number, slots)
+    @slots = slots
   end
 
   def same_row(number, slots)
@@ -98,8 +101,6 @@ end
 slots = (0..80).map do |number|
   Slot.new(number)
 end
-
-$slots = slots # debug
 
 slots.each do |slot|
   slot.make_exclusive(slots)
@@ -139,25 +140,6 @@ File.read(ARGV[0]).gsub(/\s/, "").each_char.zip(slots) do |c, slot|
   end
 end
 
-def dump
-        $slots.each_slice(27) do |rows|
-          rows.each_slice(9) do |row|
-            row.each_slice(3) do |slots|
-              slots.each do |xslot|
-                if xslot.placed
-                  print xslot.placed
-                else
-                  print "-"
-                end
-              end
-              print " "
-            end
-            puts
-          end
-          puts
-        end
-end
-
 while (sets.find do |set|
   # Try to place a digit where a set is missing a single digit, and return
   # true if a digit was placed.
@@ -170,7 +152,7 @@ while (sets.find do |set|
 
       puts "placing missing #{digit} in slot #{slots_for_digit.first.number}"
       #puts set.map{|x| x.number}.to_s
-      dump
+      slots.first.dump
 
       slots_for_digit.first.place(digit)
       true
