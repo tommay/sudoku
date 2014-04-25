@@ -143,6 +143,13 @@ class Slot
     @exclusive_with.each do |slot|
       slot.not_possible(digit)
     end
+    @exclusive_with.each do |slot|
+      if !slot.placed && slot.possible.size == 1
+        puts "placing forced #{slot.possible.first} in slot #{slot.number}"
+        @puzzle.print_puzzle
+        slot.place(slot.possible.first)
+      end
+    end
   end
 
   def possible
@@ -158,11 +165,7 @@ class Slot
   end
 
   def not_possible(digit)
-    if @possible.delete(digit) && @possible.size == 1
-      puts "placing forced #{@possible.first} in slot #{@number}"
-      @puzzle.print_puzzle
-      place(@possible.first)
-    end
+    @possible.delete(digit)
   end
 
   def make_exclusive_with
