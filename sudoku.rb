@@ -1,7 +1,27 @@
 #!/usr/bin/env ruby
 
+# Having to guess and back out seems wimpy.  Anything can be solved
+# that way, given a solution and enough time.  But if there are
+# multiple solutions then things may coe down to that.  But there are
+# some other strategies that can be implemenmted which should reduce
+# guessing.
+
+# For example: within a square, if the only possible places for a
+# given digit are in the same row, then the digit can be removed from
+# the possibilities for the rest of the Slots in that row.
+#
+# The reverse of the situation is also true.  In a given row or column if it
+# is only possible to place a given digit within a single square, then the
+# digit can be eliminated from the other Slots of that square.
+
 class Puzzle
   def initialize(filename)
+    # Note that it's not possible to create the exclusive_with crosss
+    # references at the same time we create the Slots, so we have to
+    # create the Slots then fill in the cross-references.  I'd prefer
+    # if @exclusive_with were immutable, but oh well.
+
+
     @slots = (0..80).map do |number|
       Slot.new(self, number)
     end
