@@ -66,10 +66,10 @@ class Puzzle
   end
 
   def solve
-    while (@sets.find do |set|
+    while (@sets.any? do |set|
       # Try to place a digit where a set is missing a single digit, and return
       # true if a digit was placed.
-      (1..9).find do |digit|
+      (1..9).any? do |digit|
         # Does the set contain only one slot that allows the digit?
         slots_for_digit = set.select do |slot|
           slot.placed.nil? && slot.possible.any?{|x| x == digit}
