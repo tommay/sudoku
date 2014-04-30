@@ -163,7 +163,12 @@ class Slot
     @exclusive_with.each do |slot|
       slot.not_possible(digit)
     end
-    @exclusive_with.each do |slot|
+
+    # This is efficient but not necessary.  The "missing" strategy will
+    # pick these up since there's only one place in a set to put the
+    # missing digit.
+
+    false && @exclusive_with.each do |slot|
       if !slot.placed && slot.possible.size == 1
         puts "placing forced #{slot.possible.first} in slot #{slot.number}"
         @puzzle.print_puzzle
