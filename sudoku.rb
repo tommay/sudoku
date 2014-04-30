@@ -72,7 +72,7 @@ class Puzzle
       (1..9).any? do |digit|
         # Does the set contain only one slot that allows the digit?
         slots_for_digit = set.select do |slot|
-          slot.placed.nil? && slot.possible.include?(digit)
+          !slot.placed? && slot.possible?(digit)
         end
         if slots_for_digit.size == 1
 
@@ -90,7 +90,7 @@ class Puzzle
     # Find the slot with the fewest possibilities remaining.
 
     next_slot = @slots.min_by do |slot|
-      if slot.placed
+      if slot.placed?
         10
       else
         slot.possible.size
@@ -104,7 +104,7 @@ class Puzzle
     when next_slot.possible.size == 0
       # Failed.
       puts "Backing out."
-    when next_slot.placed
+    when next_slot.placed?
       # Print the solved puzzle.
       puts "Solved:"
       print_puzzle
@@ -169,7 +169,7 @@ class Slot
     # missing digit.
 
     false && @exclusive_with.each do |slot|
-      if !slot.placed && slot.possible.size == 1
+      if !slot.placed? && slot.possible.size == 1
         puts "placing forced #{slot.possible.first} in slot #{slot.number}"
         @puzzle.print_puzzle
         slot.place(slot.possible.first)
@@ -181,12 +181,20 @@ class Slot
     @possible
   end
 
+  def possible?(digit)
+    @possible.include?(digit)
+  end
+
   def number
     @number
   end
 
   def placed
     @placed
+  end
+
+  def placed?
+    !@placed.nil?
   end
 
   def not_possible(digit)
