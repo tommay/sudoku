@@ -21,7 +21,6 @@ class Puzzle
     # create the Slots then fill in the cross-references.  I'd prefer
     # if @exclusive_with were immutable, but oh well.
 
-
     @slots = (0..80).map do |number|
       Slot.new(self, number)
     end
@@ -67,15 +66,14 @@ class Puzzle
 
   def solve
     while (@sets.any? do |set|
-      # Try to place a digit where a set is missing a single digit, and return
-      # true if a digit was placed.
+      # Try to place a digit where there is only one Slot in the set where
+      # it can possibly go, and return true if a digit was placed.
       (1..9).any? do |digit|
         # Does the set contain only one slot that allows the digit?
         slots_for_digit = set.select do |slot|
           !slot.placed? && slot.possible?(digit)
         end
         if slots_for_digit.size == 1
-
           puts "placing missing #{digit} in slot #{slots_for_digit.first.number}"
           #puts set.map{|x| x.number}.to_s
           print_puzzle
