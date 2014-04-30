@@ -2,7 +2,7 @@
 
 # Having to guess and back out seems wimpy.  Anything can be solved
 # that way, given a solution and enough time.  But if there are
-# multiple solutions then things may coe down to that.  But there are
+# multiple solutions then things may come down to that.  But there are
 # some other strategies that can be implemenmted which should reduce
 # guessing.
 
@@ -54,6 +54,20 @@ class Puzzle
 
     @sets = rows + cols + squares
 
+    @tricky_sets = (rows + cols).product(squares).flat_map do |row, square|
+      common = row & square
+      if !common.empty?
+        # If a digit is in the first set but not the second, eliminate it
+        # from the third.
+        [
+          [common, square - common, row - common],
+          [common, row - common, square - common]
+        ]
+      else
+        []
+      end
+    end
+
     # Set initial pattern.
 
     File.read(filename).gsub(/#.*/, "").gsub(/\s/, "").each_char.zip(@slots) do |c, slot|
@@ -79,6 +93,7 @@ class Puzzle
           print_puzzle
 
           slots_for_digit.first.place(digit)
+          do_tricky_sets # Is there a better place?
           true
         end
       end
@@ -113,6 +128,25 @@ class Puzzle
         puzzle = Marshal.load(Marshal.dump(self))
         puzzle.slot(next_slot.number).place(digit)
         puzzle.solve
+      end
+    end
+  end
+
+  def do_tricky_sets
+    @tricky_sets.each do |subset, rest_of_set, elimination_set|
+      subset.flat_map do |slot|
+        if slot.placed?
+          []
+        else
+          slot.possible
+        end
+      end.uniq.select do |digit|
+        !rest_of_set.any?{|slot| slot.possible?(digit)}
+      end.each do |digit|
+        elimination_set.each do |slot|
+          puts "eliminate #{digit} from slot #{slot.number}"
+          slot.not_possible(digit)
+        end
       end
     end
   end
