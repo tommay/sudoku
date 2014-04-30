@@ -72,7 +72,7 @@ class Puzzle
       (1..9).any? do |digit|
         # Does the set contain only one slot that allows the digit?
         slots_for_digit = set.select do |slot|
-          slot.placed.nil? && slot.possible.any?{|x| x == digit}
+          slot.placed.nil? && slot.possible.include?(digit)
         end
         if slots_for_digit.size == 1
 
