@@ -144,8 +144,16 @@ class Puzzle
         !rest_of_set.any?{|slot| slot.possible?(digit)}
       end.each do |digit|
         elimination_set.each do |slot|
-          puts "eliminate #{digit} from slot #{slot.number}"
-          slot.not_possible(digit)
+          if slot.possible?(digit)
+            puts "eliminating #{digit} from slot #{slot.number}"
+            slot.not_possible(digit)
+          end
+        end
+        elimination_set.each do |slot|
+          if slot.possible?(digit)
+            puts "eliminating #{digit} from slot #{slot.number}"
+            slot.not_possible(digit)
+          end
         end
       end
     end
