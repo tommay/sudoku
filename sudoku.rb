@@ -124,7 +124,7 @@ class Puzzle
     else
       # Found an empty slot with possibilities.  Try each one.
       next_slot.possible.each do |digit|
-        puts "trying #{digit} in slot #{next_slot.number}"
+        puts "trying #{digit} in slot #{next_slot.number} #{next_slot.possible}"
         puzzle = Marshal.load(Marshal.dump(self))
         puzzle.slot(next_slot.number).place(digit)
         puzzle.solve
