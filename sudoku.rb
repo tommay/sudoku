@@ -149,12 +149,6 @@ class Puzzle
             slot.not_possible(digit)
           end
         end
-        elimination_set.each do |slot|
-          if slot.possible?(digit)
-            puts "eliminating #{digit} from slot #{slot.number}"
-            slot.not_possible(digit)
-          end
-        end
       end
     end
   end
