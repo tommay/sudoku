@@ -78,8 +78,8 @@ class Puzzle
     end
   end
 
-  def solve
-    while (@sets.any? do |set|
+  def place_missing
+    @sets.any? do |set|
       # Try to place a digit where there is only one Slot in the set where
       # it can possibly go, and return true if a digit was placed.
       (1..9).any? do |digit|
@@ -91,14 +91,30 @@ class Puzzle
           puts "placing missing #{digit} in slot #{slots_for_digit.first.number}"
           #puts set.map{|x| x.number}.to_s
           print_puzzle
-
+  
           slots_for_digit.first.place(digit)
-          do_tricky_sets # Is there a better place?
           true
         end
       end
-    end) do
     end
+  end
+
+  def place_forced
+    @slots.any? do |slot|
+      if !slot.placed && slot.possible.size == 1
+        puts "placing forced #{slot.possible.first} in slot #{slot.number}"
+        print_puzzle
+        slot.place(slot.possible.first)
+        true
+      end
+    end
+  end
+
+  def solve
+    while place_missing || place_forced
+    end
+    do_tricky_sets
+
 
     # Find the slot with the fewest possibilities remaining.
 
@@ -133,7 +149,7 @@ class Puzzle
   end
 
   def do_tricky_sets
-    @tricky_sets.each do |subset, rest_of_set, elimination_set|
+    @tricky_sets.select do |subset, rest_of_set, elimination_set|
       subset.flat_map do |slot|
         if slot.placed?
           []
@@ -143,7 +159,7 @@ class Puzzle
       end.uniq.select do |digit|
         !rest_of_set.any?{|slot| slot.possible?(digit)}
       end.each do |digit|
-        elimination_set.each do |slot|
+        elimination_set.select do |slot|
           if slot.possible?(digit)
             puts "eliminating #{digit} from slot #{slot.number}"
             slot.not_possible(digit)
@@ -196,13 +212,6 @@ class Slot
     @possible = [digit]
     @exclusive_with.each do |slot|
       slot.not_possible(digit)
-    end
-    @exclusive_with.each do |slot|
-      if !slot.placed && slot.possible.size == 1
-        puts "placing forced #{slot.possible.first} in slot #{slot.number}"
-        @puzzle.print_puzzle
-        slot.place(slot.possible.first)
-      end
     end
   end
 
