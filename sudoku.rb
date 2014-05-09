@@ -16,17 +16,13 @@
 
 class Puzzle
   def initialize(filename)
-    # Note that it's not possible to create the exclusive_with crosss
+    # Note that it's not possible to create the exclusive_slots cross
     # references at the same time we create the Slots, so we have to
     # create the Slots then fill in the cross-references.  I'd prefer
-    # if @exclusive_with were immutable, but oh well.
+    # if @exclusive_slots were immutable, but oh well.
 
     @slots = (0..80).map do |number|
       Slot.new(self, number)
-    end
-
-    @slots.each do |slot|
-      slot.make_exclusive_with
     end
 
     # Each slot goes into a row, col, and square.
@@ -53,6 +49,10 @@ class Puzzle
     end
 
     @sets = rows + cols + squares
+
+    @slots.each do |slot|
+      slot.make_exclusive_slots(@sets)
+    end
 
     @tricky_sets = (rows + cols).product(squares).flat_map do |row, square|
       common = row & square
@@ -201,7 +201,7 @@ class Slot
     # The digit finally placed in this slot.
     @placed = nil
     # Array of all Slots in the same row, col, or square as this Slot.
-    @exclusive_with = nil
+    @exclusive_slots = nil
   end
 
   def inspect
@@ -211,7 +211,7 @@ class Slot
   def place(digit)
     @placed = digit
     @possible = [digit]
-    @exclusive_with.each do |slot|
+    @exclusive_slots.each do |slot|
       slot.not_possible(digit)
     end
   end
@@ -240,31 +240,8 @@ class Slot
     @possible.delete(digit)
   end
 
-  def make_exclusive_with
-    @exclusive_with = same_row + same_col + same_square - [self]
-  end
-
-  def same_row
-    row = @number / 9
-    (0..8).map do |col|
-      @puzzle.slot(row*9 + col)
-    end
-  end
-
-  def same_col
-    col = @number % 9
-    (0..8).map do |row|
-      @puzzle.slot(row*9 + col)
-    end
-  end
-
-  def same_square
-    # row and col of upper left corner of containing square
-    row = @number / 9 / 3 * 3
-    col = @number % 9 / 3 * 3
-    (0..8).map do |n|
-      @puzzle.slot((row + n/3)*9 + (col + n%3))
-    end
+  def make_exclusive_slots(sets)
+    @exclusive_slots = sets.select{|set| set.include?(self)}.flatten - [self]
   end
 end
 
