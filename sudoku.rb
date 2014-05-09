@@ -79,10 +79,12 @@ class Puzzle
   end
 
   def place_missing
-    @sets.any? do |set|
-      # Try to place a digit where there is only one Slot in the set where
-      # it can possibly go, and return true if a digit was placed.
-      (1..9).any? do |digit|
+    # Try to place a digit where there is only one Slot in the set where
+    # it can possibly go, and return true if a digit was placed.
+    # This is pretty inefficient since it has to look through all the digits
+    # and slots repeatedly but so what.
+    (1..9).any? do |digit|
+      @sets.any? do |set|
         # Does the set contain only one slot that allows the digit?
         slots_for_digit = set.select do |slot|
           !slot.placed? && slot.possible?(digit)
@@ -111,10 +113,8 @@ class Puzzle
   end
 
   def solve
-    while place_missing || place_forced
+    while place_missing || place_forced || do_tricky_sets
     end
-    do_tricky_sets
-
 
     # Find the slot with the fewest possibilities remaining.
 
@@ -149,7 +149,7 @@ class Puzzle
   end
 
   def do_tricky_sets
-    @tricky_sets.select do |subset, rest_of_set, elimination_set|
+    @tricky_sets.any? do |subset, rest_of_set, elimination_set|
       subset.flat_map do |slot|
         if slot.placed?
           []
@@ -158,11 +158,12 @@ class Puzzle
         end
       end.uniq.select do |digit|
         !rest_of_set.any?{|slot| slot.possible?(digit)}
-      end.each do |digit|
-        elimination_set.select do |slot|
+      end.any? do |digit|
+        elimination_set.any? do |slot|
           if slot.possible?(digit)
             puts "eliminating #{digit} from slot #{slot.number}"
             slot.not_possible(digit)
+            true
           end
         end
       end
