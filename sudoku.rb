@@ -57,8 +57,8 @@ class Puzzle
     @tricky_sets = (rows + cols).product(squares).flat_map do |row, square|
       common = row & square
       if !common.empty?
-        # If a digit is in the first set but not the second, eliminate it
-        # from the third.
+        # If a digit is possible in the first set but not the second,
+        # it will be set "not possible" in the third.
         [
           [common, square - common, row - common],
           [common, row - common, square - common]
