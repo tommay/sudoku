@@ -28,40 +28,49 @@ class Puzzle
     # Each slot goes into a row, col, and square.
 
     rows = (0..8).map do |row|
-      (0..8).map do |col|
-        @slots[row*9 + col]
-      end
+      ExclusionSet.new(
+        "row #{row}",
+        (0..8).map do |col|
+          @slots[row*9 + col]
+        end
+      )
     end
 
     cols = (0..8).map do |col|
-      (0..8).map do |row|
-        @slots[row*9 + col]
-      end
+      ExclusionSet.new(
+        "column #{col}",
+        (0..8).map do |row|
+          @slots[row*9 + col]
+        end
+      )
     end
 
     squares = (0..8).map do |square|
       # row and col of upper left corner of square
       row = square / 3 * 3
       col = square % 3 * 3
-      (0..8).map do |n|
-        @slots[(row + n/3)*9 + (col + n%3)]
-      end
+      ExclusionSet.new(
+        "square #{square}",
+        (0..8).map do |n|
+          @slots[(row + n/3)*9 + (col + n%3)]
+        end
+      )
     end
 
-    @sets = rows + cols + squares
+    @exclusion_sets = rows + cols + squares
 
     @slots.each do |slot|
-      slot.make_exclusive_slots(@sets)
+      slot.make_exclusive_slots(@exclusion_sets)
     end
 
     @tricky_sets = (rows + cols).product(squares).flat_map do |row, square|
-      common = row & square
+      common = row.slots & square.slots
       if !common.empty?
         # If a digit is possible in the first set but not the second,
         # it will be set "not possible" in the third.
         [
-          [common, square - common, row - common],
-          [common, row - common, square - common]
+          [common, square.slots - common, row.slots - common],
+          [common, row.slots - common, square.slots - common]
         ]
       else
         []
@@ -84,13 +93,11 @@ class Puzzle
     # This is pretty inefficient since it has to look through all the digits
     # and slots repeatedly but so what.
     (1..9).any? do |digit|
-      @sets.any? do |set|
+      @exclusion_sets.any? do |set|
         # Does the set contain only one slot that allows the digit?
-        slots_for_digit = set.select do |slot|
-          !slot.placed? && slot.possible?(digit)
-        end
+        slots_for_digit = set.possible_slots(digit)
         if slots_for_digit.size == 1
-          puts "placing missing #{digit} in slot #{slots_for_digit.first.number}"
+          puts "placing missing #{digit} from #{set} in slot #{slots_for_digit.first.number}"
           #puts set.map{|x| x.number}.to_s
           print_puzzle
   
@@ -240,8 +247,41 @@ class Slot
     @possible.delete(digit)
   end
 
-  def make_exclusive_slots(sets)
-    @exclusive_slots = sets.select{|set| set.include?(self)}.flatten - [self]
+  def make_exclusive_slots(exclusion_sets)
+    @exclusive_slots = exclusion_sets.select do |set|
+      set.include?(self)
+    end.flat_map do |set|
+      set.slots
+    end - [self]
+  end
+end
+
+# An ExclusionSet has a name so it can be identified for printing
+# messages, and an Array of Slots that are all in the same row,
+# column, or square.
+
+class ExclusionSet
+  def initialize(name, slots)
+    @name = name
+    @slots = slots
+  end
+
+  def to_s
+    @name
+  end
+
+  def include?(slot)
+    @slots.include?(slot)
+  end
+
+  def possible_slots(digit)
+    @slots.select do |slot|
+      !slot.placed? && slot.possible?(digit)
+    end
+  end
+
+  def slots
+    @slots
   end
 end
 
