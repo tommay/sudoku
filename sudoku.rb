@@ -15,7 +15,7 @@
 # digit can be eliminated from the other Slots of that square.
 
 class Puzzle
-  def initialize(filename)
+  def initialize(filename:nil, setup:nil)
     # Note that it's not possible to create the exclusive_slots cross
     # references at the same time we create the Slots, so we have to
     # create the Slots then fill in the cross-references.  I'd prefer
@@ -79,7 +79,11 @@ class Puzzle
 
     # Set initial pattern.
 
-    File.read(filename).gsub(/#.*/, "").gsub(/\s/, "").each_char.zip(@slots) do |c, slot|
+    if filename
+      setup = File.read(filename).gsub(/#.*/, "").gsub(/\s/, "")
+    end
+
+    setup.each_char.zip(@slots) do |c, slot|
       if c != "-"
         puts "placing initial #{c} in slot #{slot.number}"
         slot.place(c.to_i)
@@ -285,4 +289,4 @@ class ExclusionSet
   end
 end
 
-Puzzle.new(ARGV[0]).solve
+Puzzle.new(filename: ARGV[0]).solve
