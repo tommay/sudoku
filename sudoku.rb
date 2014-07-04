@@ -289,4 +289,6 @@ class ExclusionSet
   end
 end
 
-Puzzle.new(filename: ARGV[0]).solve
+if __FILE__ == $0
+  Puzzle.new(filename: ARGV[0]).solve
+end
