@@ -124,7 +124,7 @@ class Puzzle
   end
 
   def solve(solved_count = 0)
-    while place_missing || place_forced || do_tricky_sets
+    while place_missing || place_forced || eliminate_with_tricky_sets
     end
 
     # Find the slot with the fewest possibilities remaining.
@@ -161,7 +161,7 @@ class Puzzle
     end
   end
 
-  def do_tricky_sets
+  def eliminate_with_tricky_sets
     @tricky_sets.any? do |subset, rest_of_set, elimination_set|
       subset.flat_map do |slot|
         if slot.placed?
