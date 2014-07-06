@@ -123,7 +123,7 @@ class Puzzle
     end
   end
 
-  def solve
+  def solve(solved_count = 0)
     while place_missing || place_forced || do_tricky_sets
     end
 
@@ -144,17 +144,19 @@ class Puzzle
     when next_slot.possible.size == 0
       # Failed.
       puts "Backing out."
+      solved_count
     when next_slot.placed?
       # Print the solved puzzle.
       puts "Solved:"
       print_puzzle
+      1 + solved_count
     else
       # Found an empty slot with possibilities.  Try each one.
-      next_slot.possible.each do |digit|
+      next_slot.possible.reduce(solved_count) do |solved_sum, digit|
         puts "trying #{digit} in slot #{next_slot.number} #{next_slot.possible}"
         puzzle = Marshal.load(Marshal.dump(self))
         puzzle.slot(next_slot.number).place(digit)
-        puzzle.solve
+        solved_sum + puzzle.solve
       end
     end
   end
@@ -290,5 +292,5 @@ class ExclusionSet
 end
 
 if __FILE__ == $0
-  Puzzle.new(filename: ARGV[0]).solve
+  puts "#{Puzzle.new(filename: ARGV[0]).solve} solutions"
 end
