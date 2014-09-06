@@ -60,7 +60,7 @@ end
 
 def usage
   puts <<END
-usage: #{$0} [-e|m|h|e] start [stop]
+usage: #{$0} [-e|m|h|v] start [stop]
   Where -e, -m, -h, -v selects easy, hard, medium, or evil difficulty.
   The numbers -1, -2, -3, and -4 may also be used.
   The default is -v/-4, evil.
