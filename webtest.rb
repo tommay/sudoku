@@ -5,9 +5,36 @@ require "net/http"
 
 require_relative "sudoku.rb"
 
-def main
-  (1..10).each do |number|
-    page = get_page("http://view.websudoku.com/?level=4&set_id=#{number}")
+def main(argv)
+  level = if argv.first =~ /^-(.)$/
+    argv.shift
+    case $1
+    when "e", "1"
+      1
+    when "m", "2"
+      2
+    when "h", "3"
+      3
+    when "v", "4"
+      4
+    else
+      usage
+    end
+  else
+    4
+  end
+
+  range = case argv.size
+  when 1
+    (argv[0].to_i .. argv[0].to_i)
+  when 2
+    (argv[0].to_i .. argv[1].to_i)
+  else
+    usage
+  end
+
+  range.each do |number|
+    page = get_page("http://view.websudoku.com/?level=#{level}&set_id=#{number}")
     if page == nil
       puts "Skipping page #{page_number}"
       next
@@ -29,6 +56,18 @@ def main
 
     puts "#{Puzzle.new(setup: init).solve} solutions"
   end
+end
+
+def usage
+  puts <<END
+usage: #{$0} [-e|m|h|e] start [stop]
+  Where -e, -m, -h, -v selects easy, hard, medium, or evil difficulty.
+  The numbers -1, -2, -3, and -4 may also be used.
+  The default is -v/-4, evil.
+  start is the number of the sudoku puzzle to solve.
+  If stop is given, the puzzles in the range start..stop are solved.
+END
+  exit(1)
 end
 
 def get_page(page)
@@ -53,4 +92,4 @@ def get_page(page)
   nil
 end
 
-main
+main(ARGV)
