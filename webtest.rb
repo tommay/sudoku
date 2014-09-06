@@ -6,7 +6,7 @@ require "net/http"
 require_relative "sudoku.rb"
 
 def main
-  1.upto(1) do |number|
+  (1..10).each do |number|
     page = get_page("http://view.websudoku.com/?level=4&set_id=#{number}")
     if page == nil
       puts "Skipping page #{page_number}"
