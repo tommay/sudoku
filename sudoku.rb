@@ -1,20 +1,34 @@
 #!/usr/bin/env ruby
 
+# Sudoku solver: ./sudoku.rb filename
+# where filename is a file containing a puzzle looking something
+# like this.  Whitespace is ignored, comments are "#"  to end of line.
+# 1-- 3-- -6-
+# 3-7 495 1--
+# --- 621 --3
+# 
+# 6-3 --- 2--
+# -48 --- 61-
+# --1 --- 9-4
+# 
+# 7-- 543 ---
+# --9 812 7-6
+# -2- --9 --1
+#
+# The Puzzle class may also be used independently by
+# require "sudoku"
+# puzzle = Puzzle.new(...)
+
 # Having to guess and back out seems wimpy.  Anything can be solved
 # that way, given a solution and enough time.  But if there are
-# multiple solutions then things may come down to that.  But there are
+# multiple solutions then things come down to that.  But there are
 # some other strategies that can be implemenmted which should reduce
 # guessing.
 
-# For example: within a square, if the only possible places for a
-# given digit are in the same row, then the digit can be removed from
-# the possibilities for the rest of the Slots in that row.
-#
-# The reverse of the situation is also true.  In a given row or column if it
-# is only possible to place a given digit within a single square, then the
-# digit can be eliminated from the other Slots of that square.
-
 class Puzzle
+  # filename: optional file to load a setup from
+  # setup: a string containing a digit from 1-9 or "-" for each position. 
+
   def initialize(filename:nil, setup:nil)
     # Note that it's not possible to create the exclusive_slots cross
     # references at the same time we create the Slots, so we have to
@@ -25,7 +39,8 @@ class Puzzle
       Slot.new(self, number)
     end
 
-    # Each slot goes into a row, col, and square.
+    # Create an ExclusionSet for each row, containing the Slots
+    # in the row.
 
     rows = (0..8).map do |row|
       ExclusionSet.new(
@@ -36,6 +51,8 @@ class Puzzle
       )
     end
 
+    # Create an ExclusionSet for each column.
+
     cols = (0..8).map do |col|
       ExclusionSet.new(
         "column #{col}",
@@ -44,6 +61,8 @@ class Puzzle
         end
       )
     end
+
+    # Create an ExclusionSet for each square.
 
     squares = (0..8).map do |square|
       # row and col of upper left corner of square
@@ -63,11 +82,21 @@ class Puzzle
       slot.make_exclusive_slots(@exclusion_sets)
     end
 
+    # Within a square, if the only possible places for a given digit
+    # are in the same row/col, then the digit can be removed from the
+    # possibilities for the rest of the Slots in that row/col.
+    #
+    # The reverse of the situation is also true.  In a given row or
+    # column if it is only possible to place a given digit within a
+    # single square, then the digit can be eliminated from the other
+    # Slots of that square.
+
     @tricky_sets = (rows + cols).product(squares).flat_map do |row, square|
       common = row.slots & square.slots
       if !common.empty?
-        # If a digit is possible in the first set but not the second,
-        # it will be set "not possible" in the third.
+        # Each Array in @tricky_sets contains three ExclusionSets.  If
+        # a digit is possible in the first set but not the second, it
+        # will be set to "not possible" in the third.
         [
           [common, square.slots - common, row.slots - common],
           [common, row.slots - common, square.slots - common]
@@ -91,7 +120,7 @@ class Puzzle
     end
   end
 
-  def place_missing
+  def place_one_missing
     # Try to place a digit where there is only one Slot in the set where
     # it can possibly go, and return true if a digit was placed.
     # This is pretty inefficient since it has to look through all the digits
@@ -112,7 +141,7 @@ class Puzzle
     end
   end
 
-  def place_forced
+  def place_one_forced
     @slots.any? do |slot|
       if !slot.placed && slot.possible.size == 1
         puts "placing forced #{slot.possible.first} in slot #{slot.number}"
@@ -123,11 +152,16 @@ class Puzzle
     end
   end
 
-  def solve(solved_count = 0)
-    while place_missing || place_forced || eliminate_with_tricky_sets
+  def solve
+    # In order to come up with a sequence somewhat like a person would, we
+    # preferentially try to place missing digits, then forced digits, and
+    # if we can't do either we run the tricky sets elimination.  This doesn't
+    # actually end up doing things like I would though.  Oh well.
+
+    while place_one_missing || place_one_forced || eliminate_with_tricky_sets
     end
 
-    # Find the slot with the fewest possibilities remaining.
+    # Find the Slot with the fewest possibilities remaining.
 
     next_slot = @slots.min_by do |slot|
       if slot.placed?
@@ -137,22 +171,22 @@ class Puzzle
       end
     end
 
-    # Did we find an empty slot with possibilities?  If so, try all
+    # Did we find an empty Slot with possibilities?  If so, try all
     # the possibilities.
 
     case
     when next_slot.possible.size == 0
       # Failed.
       puts "Backing out."
-      solved_count
+      0
     when next_slot.placed?
       # Print the solved puzzle.
       puts "Solved:"
       print_puzzle
-      1 + solved_count
+      1
     else
-      # Found an empty slot with possibilities.  Try each one.
-      next_slot.possible.reduce(solved_count) do |solved_sum, digit|
+      # Found an empty slot with possibilities.  Try each one recursively.
+      next_slot.possible.reduce(0) do |solved_sum, digit|
         puts "trying #{digit} in slot #{next_slot.number} #{next_slot.possible}"
         puzzle = Marshal.load(Marshal.dump(self))
         puzzle.slot(next_slot.number).place(digit)
@@ -203,6 +237,11 @@ class Puzzle
   end
 end
 
+# Each position in the Puzzle gets a Slot which remembers the number
+# we've placed in this Slot and some other book-keeping information
+# like which numbers are possible to put here, i.e., have not been
+# eliminated by previous placements.
+
 class Slot
   def initialize(puzzle, number)
     # Remember our containing puzzle, for output.
@@ -252,6 +291,12 @@ class Slot
   def not_possible(digit)
     @possible.delete(digit)
   end
+
+  # Set @exclusive_slots to an Array of all the other Slots either in
+  # the same row, column, or square.  If we place a number in this
+  # Slot, we can't place the same number in any of these other Slots.
+  # Note that this list may contain duplicates but that doesn't
+  # matter.
 
   def make_exclusive_slots(exclusion_sets)
     @exclusive_slots = exclusion_sets.select do |set|
