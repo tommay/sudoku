@@ -152,6 +152,8 @@ class Puzzle
     end
   end
 
+  # Returns an Array of solved Puzzles.
+
   def solve
     # In order to come up with a sequence somewhat like a person would, we
     # preferentially try to place missing digits, then forced digits, and
@@ -178,19 +180,19 @@ class Puzzle
     when next_slot.possible.size == 0
       # Failed.
       puts "Backing out."
-      0
+      []
     when next_slot.placed?
       # Print the solved puzzle.
       puts "Solved:"
       print_puzzle
-      1
+      [self]
     else
       # Found an empty slot with possibilities.  Try each one recursively.
-      next_slot.possible.reduce(0) do |solved_sum, digit|
+      next_slot.possible.flat_map do |digit|
         puts "trying #{digit} in slot #{next_slot.number} #{next_slot.possible}"
         puzzle = Marshal.load(Marshal.dump(self))
         puzzle.slot(next_slot.number).place(digit)
-        solved_sum + puzzle.solve
+        puzzle.solve
       end
     end
   end
@@ -337,5 +339,5 @@ class ExclusionSet
 end
 
 if __FILE__ == $0
-  puts "#{Puzzle.new(filename: ARGV[0]).solve} solutions"
+  puts "#{Puzzle.new(filename: ARGV[0]).solve.size} solutions"
 end
