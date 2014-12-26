@@ -78,8 +78,20 @@ class Puzzle
 
     @exclusion_sets = rows + cols + squares
 
+    # Set each Position's exclusive_positions to an Array of all the
+    # other Positions either in the same row, column, or square.  If
+    # we place a number in this Position, we can't place the same
+    # number in any of these other Positions.  Note that this list may
+    # contain duplicates but that doesn't matter.
+
     @positions.each do |position|
-      position.make_exclusive_positions(@exclusion_sets)
+      position.set_exclusive_positions(
+        @exclusion_sets.select do |set|
+          set.include?(position)
+        end.flat_map do |set|
+          set.positions
+        end - [position]
+      )
     end
 
     # Within a square, if the only possible places for a given digit
@@ -294,18 +306,8 @@ class Position
     @possible.delete(digit)
   end
 
-  # Set @exclusive_positions to an Array of all the other Positions
-  # either in the same row, column, or square.  If we place a number
-  # in this Position, we can't place the same number in any of these
-  # other Positions.  Note that this list may contain duplicates but
-  # that doesn't matter.
-
-  def make_exclusive_positions(exclusion_sets)
-    @exclusive_positions = exclusion_sets.select do |set|
-      set.include?(self)
-    end.flat_map do |set|
-      set.positions
-    end - [self]
+  def set_exclusive_positions(exclusive_positions)
+    @exclusive_positions = exclusive_positions;
   end
 end
 
