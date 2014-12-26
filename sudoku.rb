@@ -175,7 +175,11 @@ class Puzzle
     while place_one_missing || place_one_forced || eliminate_with_tricky_sets
     end
 
-    # Find the Position with the fewest possibilities remaining.
+    # We get here either because we're done, we've failed, or we have
+    # to guess and recure.  We can distibguish examining the position
+    # with the fewest possibilities remaining.  Note that if there is
+    # a Position with only one possibility then place_on_forced would
+    # already have placed a digit there.
 
     next_position = @positions.min_by do |position|
       if position.placed?
@@ -185,21 +189,19 @@ class Puzzle
       end
     end
 
-    # Did we find an empty Position with possibilities?  If so, try
-    # all the possibilities.
-
     case
-    when next_position.possible.size == 0
-      # Failed.
-      puts "Backing out."
-      []
     when next_position.placed?
-      # Print the solved puzzle.
+      # Solved.  Return self as a solution.
       puts "Solved:"
       print_puzzle
       [self]
+    when next_position.possible.empty?
+      # Failed.  No solution to return.
+      puts "Backing out."
+      []
     else
-      # Found an empty position with possibilities.  Try each one recursively.
+      # Found an unplaced position with possibilities.  Guess each
+      # possibility recursively, and return any solutions we find.
       next_position.possible.flat_map do |digit|
         puts "trying #{digit} in position #{next_position.number} #{next_position.possible}"
         puzzle = Marshal.load(Marshal.dump(self))
