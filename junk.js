@@ -45,7 +45,7 @@ function Puzzle(setup) {
 
     var squares = iota(9).map(function (square) {
 	// row and col of upper left corner of square
-	var row = (square / 3)|0 * 3;
+	var row = ((square / 3)|0) * 3;
 	var col = square % 3 * 3;
 	return new ExclusionSet(
 	    "square " + square,
