@@ -244,19 +244,25 @@ Puzzle.prototype.position = function (number) {
     this.positions[number];
 };
 
-Puzzle.prototype.print_puzzle = function (number) {
-    this.positions.each_slice(27, function(rows) {
+Puzzle.prototype.print_puzzle = function() {
+    result = "";
+    this.to_string().split("").each_slice(27, function(rows) {
 	rows.each_slice(9, function(row) {
-            row.each_slice(3, function (positions) {
-		positions.forEach(function (position) {
-		    process.stdout.write(position.digit_or_dash());
-		});
-		process.stdout.write(" ");
+            row.each_slice(3, function (digits) {
+		result += digits.join("");
+		result += " ";
 	    });
-            process.stdout.write("\n");
+	    result += "\n";
 	});
-        process.stdout.write("\n");
+	result += "\n";
     });
+    process.stdout.write(result);
+};
+
+Puzzle.prototype.to_string = function (number) {
+    return this.positions.map(function (position) {
+	return position.digit_or_dash();
+    }).join("");
 };
 
 // Each position in the Puzzle gets a Position which remembers the
