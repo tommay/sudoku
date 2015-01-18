@@ -127,7 +127,7 @@ Puzzle.prototype.place_one_missing = function () {
     // set where it can possibly go, and return true if a digit was
     // placed.  This is pretty inefficient since it has to look
     // through all the digits and positions repeatedly but so what.
-    return iota(9).some(function (digit) {
+    return range(1, 9).some(function (digit) {
 	return self.exclusion_sets.some(function (set) {
 	    // Does the set contain only one position that allows the
 	    // digit?
@@ -417,13 +417,17 @@ Array.prototype.each_slice = function(size, func) {
     }
 };
 
-function iota(n) {
+function range(n1, n2) {
     var result = [];
-    for (var i = 0; i < n; i++) {
+    for (var i = n1; i <= n2; i++) {
 	result.push(i);
     }
     return result;
 };
+
+function iota(n) {
+    return range(0, n-1);
+}
 
 function iota_map(n, func) {
     var result = [];
