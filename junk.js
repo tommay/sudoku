@@ -87,7 +87,7 @@ function Puzzle(setup) {
 	    var row = args.shift();
 	    var square = args.shift();
 	    var common = row.positions.intersection(square.positions);
-	    if (!common.is_empty) {
+	    if (!common.is_empty()) {
 		// Each Array in self.tricky_sets contains three
 		// ExclusionSets.  If a digit is possible in the first
 		// set but not the second, it will be set to "not
@@ -190,7 +190,7 @@ Puzzle.prototype.solve = function() {
 	self.print_puzzle();
 	return [self];
     }
-    else if (next_position.possible.is_empty) {
+    else if (next_position.possible.is_empty()) {
 	// Failed.  No solution to return.
 	console.log("Backing out.");
 	return [];
@@ -210,8 +210,6 @@ Puzzle.prototype.solve = function() {
 };
 
 Puzzle.prototype.eliminate_with_tricky_sets = function () {
-    var self = this;
-
     this.tricky_sets.some(function (args) {
 	subset = args.shift();
 	rest_of_set = args.shift();
