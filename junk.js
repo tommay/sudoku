@@ -242,7 +242,7 @@ Puzzle.prototype.eliminate_with_tricky_sets = function () {
 
 Puzzle.prototype.position = function (number) {
     this.positions[number];
-}
+};
 
 Puzzle.prototype.print_puzzle = function (number) {
     this.positions.each_slice(27, function(rows) {
