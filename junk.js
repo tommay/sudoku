@@ -198,7 +198,7 @@ Puzzle.prototype.solve = function() {
     else {
 	// Found an unplaced position with possibilities.  Guess each
 	// possibility recursively, and return any solutions we find.
-	next_position.possible.flatMap(function (digit) {
+	return next_position.possible.flatMap(function (digit) {
 	    console.log("trying " + digit + " in position " +
 			next_position.number + " " +
 			next_position.possible);
@@ -239,7 +239,7 @@ Puzzle.prototype.eliminate_with_tricky_sets = function () {
 };
 
 Puzzle.prototype.position = function (number) {
-    this.positions[number];
+    return this.positions[number];
 };
 
 Puzzle.prototype.print_puzzle = function() {
