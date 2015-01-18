@@ -110,7 +110,7 @@ function Puzzle(setup) {
     setup.split("").zip(self.positions).forEach(function (args) {
 	var c = args.shift();
 	var position = args.shift();
-	if (c != "-") {
+	if (c !== "-") {
             console.log("placing initial " + c +
 			" in position " + position.number);
             position.place(Number(c));
@@ -130,7 +130,7 @@ Puzzle.prototype.place_one_missing = function () {
 	    // Does the set contain only one position that allows the
 	    // digit?
 	    var positions_for_digit = set.possible_positions(digit);
-	    if (positions_for_digit.length == 1) {
+	    if (positions_for_digit.length === 1) {
 		console.log("placing missing " + digit +
 			    " from " + set + " in position " +
 			    positions_for_digit[0].number);
@@ -147,7 +147,7 @@ Puzzle.prototype.place_one_forced = function() {
     var self = this;
 
     return self.positions.some(function (position) {
-	if (!position.placed && position.possible.length == 1) {
+	if (!position.placed && position.possible.length === 1) {
 	    console.log("placing forced " + position.possible[0] +
 			" in position " + position.number);
 	    self.print_puzzle();
@@ -297,7 +297,7 @@ Position.prototype.is_possible = function(digit) {
 };
 
 Position.prototype.is_placed = function() {
-    return this.placed != undefined;
+    return this.placed !== undefined;
 };
 
 Position.prototype.not_possible = function(digit) {
@@ -343,7 +343,7 @@ Array.prototype.product = function(that) {
 
 if (!Array.prototype.contains) {
     Array.prototype.contains = function(e) {
-	return this.some(function(x){return x == e;});
+	return this.some(function(x){return x === e;});
     }
 }
 
@@ -373,7 +373,7 @@ Array.prototype.min_by = function(map) {
     return this.reduce(
 	function (accum, e) {
 	    var n = map(e);
-	    if (accum.obj == undefined || n < accum.n) {
+	    if (accum.obj === undefined || n < accum.n) {
 		accum.obj = e;
 		accum.n = n;
 	    }
@@ -384,7 +384,7 @@ Array.prototype.min_by = function(map) {
 };
 
 Array.prototype.is_empty = function() {
-    return this.length == 0;
+    return this.length === 0;
 };
 
 // Zip together multiple lists into a single array -- elements that
