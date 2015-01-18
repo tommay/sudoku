@@ -378,9 +378,9 @@ Array.prototype.min_by = function(map) {
     return this.reduce(
 	function (accum, e) {
 	    var n = map(e);
-	    if (accum.obj === undefined || n < accum.n) {
-		accum.obj = e;
+	    if (accum.n === undefined || n < accum.n) {
 		accum.n = n;
+		accum.obj = e;
 	    }
 	    return accum;
 	},
