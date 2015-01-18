@@ -249,12 +249,7 @@ Puzzle.prototype.print_puzzle = function (number) {
 	rows.each_slice(9, function(row) {
             row.each_slice(3, function (positions) {
 		positions.forEach(function (position) {
-		    if (position.placed) {
-			process.stdout.write(position.placed.toString());
-		    }
-		    else {
-			process.stdout.write("-");
-		    }
+		    process.stdout.write(position.digit_or_dash());
 		});
 		process.stdout.write(" ");
 	    });
@@ -285,6 +280,10 @@ function Position(puzzle, number) {
 Position.prototype.toString = function() {
     return this.number + ": " + this.possible.toString;
 };
+
+Position.prototype.digit_or_dash = function() {
+    return this.placed ? this.placed.toString() : "-";
+}
 
 Position.prototype.place = function(digit) {
     this.placed = digit;
