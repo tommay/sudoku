@@ -202,7 +202,7 @@ Puzzle.prototype.solve = function() {
 	    console.log("trying " + digit + " in position " +
 			next_position.number + " " +
 			next_position.possible);
-	    var puzzle = Marshal.load(Marshal.dump(self));
+	    var puzzle = new Puzzle(self.to_string());
 	    puzzle.position(next_position.number).place(digit);
 	    return puzzle.solve();
 	});
