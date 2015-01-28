@@ -223,11 +223,11 @@ Puzzle.prototype.eliminate_with_tricky_sets = function () {
 	    }
 	}).uniq().filter(function (digit) {
 	    return !rest_of_set.some(function (position) {
-		return position.is_possible(digit);
+		return position.is_possible_for(digit);
 	    });
 	}).some(function (digit) {
 	    elimination_set.some(function (position) {
-		if (position.is_possible(digit)) {
+		if (position.is_possible_for(digit)) {
 		    console.log("eliminating " + digit + " from position " +
 				position.number);
 		    position.not_possible(digit);
@@ -297,7 +297,7 @@ Position.prototype.place = function(digit) {
     });
 };
 
-Position.prototype.is_possible = function(digit) {
+Position.prototype.is_possible_for = function(digit) {
     return this.possible.contains(digit);
 };
 
@@ -332,7 +332,7 @@ ExclusionSet.prototype.contains = function(position) {
 
 ExclusionSet.prototype.possible_positions = function(digit) {
     return this.positions.filter(function (position) {
-	return !position.placed && position.is_possible(digit);
+	return !position.placed && position.is_possible_for(digit);
     });
 };
 
