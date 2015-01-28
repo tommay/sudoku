@@ -348,7 +348,7 @@ Array.prototype.product = function(that) {
 
 if (!Array.prototype.contains) {
     Array.prototype.contains = function(e) {
-	return this.some(function(x){return x === e;});
+	return this.indexOf(e) != -1;
     }
 }
 
