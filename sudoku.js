@@ -175,9 +175,9 @@ Puzzle.prototype.solve = function() {
     }
 
     // We get here either because we're done, we've failed, or we have
-    // to guess and recure.  We can distibguish examining the position
+    // to guess and recurse.  We can distinguish examining the position
     // with the fewest possibilities remaining.  Note that if there is
-    // a Position with only one possibility then place_on_forced would
+    // a Position with only one possibility then place_one_forced would
     // already have placed a digit there.
 
     var next_position = self.positions.min_by(function (position) {
