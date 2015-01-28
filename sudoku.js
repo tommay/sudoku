@@ -257,7 +257,7 @@ Puzzle.prototype.print_puzzle = function() {
     process.stdout.write(result);
 };
 
-Puzzle.prototype.to_string = function (number) {
+Puzzle.prototype.to_string = function () {
     return this.positions.map(function (position) {
 	return position.digit_or_dash();
     }).join("");
