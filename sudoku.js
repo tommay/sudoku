@@ -4,7 +4,7 @@ var fs = require("fs");
 
 function main() {
     var text = fs.readFileSync(process.argv[2], {encoding: "utf8"});
-    text = text.replace(/#./g, "").replace(/\s/g, "");
+    text = text.replace(/#.*/g, "").replace(/\s/g, "");
     var solutions = new Puzzle(text).solve();
     console.log(solutions.length + " solutions");
 };
