@@ -353,25 +353,25 @@ if (!Array.prototype.contains) {
 }
 
 Array.prototype.intersection = function(other) {
-    var result = [];
-    for (var i = 0; i < this.length; i++) {
-	var e = this[i];
-	if (other.contains(e)) {
-	    result.push(e);
-	}
-    }
-    return result;
+    return this.reduce(
+	function (accum, e) {
+	    if (other.contains(e)) {
+		accum.push(e);
+	    }
+	    return accum;
+	},
+	[]);
 };
 
 Array.prototype.minus = function(other) {
-    var result = [];
-    for (var i = 0; i < this.length; i++) {
-	var e = this[i];
-	if (!other.contains(e)) {
-	    result.push(e);
-	}
-    }
-    return result;
+    return this.reduce(
+	function (accum, e) {
+	    if (!other.contains(e)) {
+		accum.push(e);
+	    }
+	    return accum;
+	},
+	[]);
 };
 
 Array.prototype.min_by = function(map) {
