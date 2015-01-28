@@ -243,7 +243,7 @@ Puzzle.prototype.position = function (number) {
 };
 
 Puzzle.prototype.print_puzzle = function() {
-    result = "";
+    var result = "";
     this.to_string().split("").each_slice(27, function(rows) {
 	rows.each_slice(9, function(row) {
             row.each_slice(3, function (digits) {
