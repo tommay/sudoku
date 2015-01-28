@@ -62,8 +62,7 @@ class Puzzle
     # single square, then the digit can be eliminated from the other
     # Positions of that square.
 
-    @tricky_sets = rows.concat(cols).product(squares).flatMap (args) =>
-      [row, square] = args
+    @tricky_sets = rows.concat(cols).product(squares).flatMap ([row, square]) =>
       common = row.positions.intersect(square.positions)
       if !common.is_empty()
         # Each Array in @tricky_sets contains three
@@ -83,8 +82,7 @@ class Puzzle
     # setup = File.read(filename).gsub(/#.*/, "").gsub(/\s/, "")
     # end
 
-    setup.split("").zip(@positions).forEach (args) =>
-      [c, position] = args
+    setup.split("").zip(@positions).forEach ([c, position]) =>
       if c != "-"
         console.log "placing initial #{c} in position #{position.number}"
         position.place(Number(c))
@@ -159,8 +157,7 @@ class Puzzle
           puzzle.solve()
 
   eliminate_with_tricky_sets: ->
-    @tricky_sets.some (args) =>
-      [subset, rest_of_set, elimination_set] = args
+    @tricky_sets.some ([subset, rest_of_set, elimination_set]) =>
       subset.flatMap (position) =>
         if position.placed then [] else position.possible
       .uniq().filter (digit) =>
