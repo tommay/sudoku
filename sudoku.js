@@ -86,7 +86,7 @@ function Puzzle(setup) {
 	function(args) {
 	    var row = args.shift();
 	    var square = args.shift();
-	    var common = row.positions.intersection(square.positions);
+	    var common = row.positions.intersect(square.positions);
 	    if (!common.is_empty()) {
 		// Each Array in self.tricky_sets contains three
 		// ExclusionSets.  If a digit is possible in the first
@@ -352,7 +352,7 @@ if (!Array.prototype.contains) {
     }
 }
 
-Array.prototype.intersection = function(other) {
+Array.prototype.intersect = function(other) {
     return this.reduce(
 	function (accum, e) {
 	    if (other.contains(e)) {
