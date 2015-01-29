@@ -1,3 +1,4 @@
+# This needs to be run with coffee --nodejs --harmony.
 #!/usr/bin/env coffee
 
 fs = require("fs")
@@ -5,7 +6,10 @@ fs = require("fs")
 main = ->
   text = fs.readFileSync(process.argv[2], {encoding: "utf8"})
   text = text.replace(/#.*/g, "").replace(/\s/g, "")
-  solutions = new Puzzle(text).solve()
+  # Well this sucks the big one.  Can't I use a comprehension to
+  # get stuff out of the generator?
+  collect = (gen) -> ref.value until (ref = gen.next()).done
+  solutions = collect new Puzzle(text).solve()
   console.log "#{solutions.length} solutions"
 
 class Puzzle
@@ -115,7 +119,7 @@ class Puzzle
         position.place(position.possible[0])
         true
 
-  # Returns an Array of solved Puzzles.
+  # This is a generator . . .
 
   solve: ->
     # In order to come up with a sequence somewhat like a person
@@ -141,20 +145,26 @@ class Puzzle
         # Solved.  Return this as a solution.
         console.log "Solved:"
         @print_puzzle()
-        [@]
+        yield @
       when next_position.possible.is_empty()
         # Failed.  No solution to return.
         console.log "Backing out."
-        []
       else
+        console.log "Have to guess"
         # Found an unplaced position with possibilities.  Guess each
         # possibility recursively, and return any solutions we find.
-        next_position.possible.flatMap (digit) =>
+        console.log "possibilities: #{next_position.possible}"
+        next_position.possible.forEach (digit) =>
+          console.log "possibility: #{digit}"
+        # Can't (easily) use forEach and have the generator work since
+        # forEach wants a regular function.  WTF javascript and coffeescript
+        for digit in next_position.possible
+          console.log "guessing #{digit}"
           console.log "trying #{digit} in position " +
                       "#{next_position.number} #{next_position.possible}"
           puzzle = new Puzzle(@to_string())
           puzzle.position(next_position.number).place(digit)
-          puzzle.solve()
+          yield from puzzle.solve()
 
   eliminate_with_tricky_sets: ->
     @tricky_sets.some ([subset, rest_of_set, elimination_set]) =>
