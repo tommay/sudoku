@@ -204,7 +204,7 @@ class Puzzle
       # possibility recursively, and return any solutions we find.
       next_position.possible.flat_map do |digit|
         puts "trying #{digit} in position #{next_position.number} #{next_position.possible}"
-        puzzle = Marshal.load(Marshal.dump(self))
+        puzzle = Puzzle.new(setup: to_string)
         puzzle.position(next_position.number).place(digit)
         puzzle.solve
       end
@@ -250,6 +250,12 @@ class Puzzle
       end
       puts
     end
+  end
+
+  def to_string
+    @positions.map do |position|
+      position.placed? ? position.placed.to_s : "-"
+    end.join("")
   end
 end
 
