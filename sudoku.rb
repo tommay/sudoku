@@ -238,13 +238,10 @@ class Puzzle
   end
 
   def print_puzzle
-    @positions.each_slice(27) do |rows|
+    to_string.each_char.each_slice(27) do |rows|
       rows.each_slice(9) do |row|
-        row.each_slice(3) do |positions|
-          positions.each do |position|
-            print position.placed || "-"
-          end
-          print " "
+        row.each_slice(3) do |digits|
+          print digits.join("") + " "
         end
         puts
       end
