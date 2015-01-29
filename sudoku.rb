@@ -164,9 +164,9 @@ class Puzzle
     end
   end
 
-  # Returns an Array of solved Puzzles.
+  # Passes each solved Puzzle to the yielder.
 
-  def solve
+  def solve(yielder)
     # In order to come up with a sequence somewhat like a person would, we
     # preferentially try to place missing digits, then forced digits, and
     # if we can't do either we run the tricky sets elimination.  This doesn't
@@ -191,22 +191,21 @@ class Puzzle
 
     case
     when next_position.placed?
-      # Solved.  Return self as a solution.
+      # Solved.  Yield self as a solution.
       puts "Solved:"
       print_puzzle
-      [self]
+      yielder << self
     when next_position.possible.empty?
       # Failed.  No solution to return.
       puts "Backing out."
-      []
     else
       # Found an unplaced position with possibilities.  Guess each
-      # possibility recursively, and return any solutions we find.
-      next_position.possible.flat_map do |digit|
+      # possibility recursively, and yield any solutions we find.
+      next_position.possible.each do |digit|
         puts "trying #{digit} in position #{next_position.number} #{next_position.possible}"
         puzzle = Puzzle.new(setup: to_string)
         puzzle.position(next_position.number).place(digit)
-        puzzle.solve
+        puzzle.solve(yielder)
       end
     end
   end
@@ -346,5 +345,8 @@ class ExclusionSet
 end
 
 if __FILE__ == $0
-  puts "#{Puzzle.new(filename: ARGV[0]).solve.size} solutions"
+  count = Enumerator.new do |yielder|
+    Puzzle.new(filename: ARGV[0]).solve(yielder)
+  end.to_a.size
+  puts "#{count} solutions"
 end
