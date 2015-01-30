@@ -177,9 +177,7 @@ class Puzzle
 
     # We get here either because we're done, we've failed, or we have
     # to guess and recurse.  We can distinguish by examining the
-    # position with the fewest possibilities remaining.  Note that if
-    # there is a Position with only one possibility then
-    # place_one_forced would already have placed a digit there.
+    # position with the fewest possibilities remaining.
 
     next_position = @positions.min_by do |position|
       if position.placed?
@@ -198,9 +196,16 @@ class Puzzle
     when next_position.possible.empty?
       # Failed.  No solution to return.
       puts "Backing out."
+    when next_position.possible.size == 1
+      # Found an unplaced position with only one possibility.
+      # Place it and iterate by calling solve recursively.
+      puts "placing forced #{next_position.possible.first} in position #{next_position.number}"
+      print_puzzle
+      next_position.place(next_position.possible.first)
+      solve(yielder)
     else
-      # Found an unplaced position with possibilities.  Guess each
-      # possibility recursively, and yield any solutions we find.
+      # Found an unplaced position with multiple possibilities.  Guess
+      # each possibility recursively, and yield any solutions we find.
       next_position.possible.each do |digit|
         puts "trying #{digit} in position #{next_position.number} #{next_position.possible}"
         puzzle = Puzzle.new(setup: to_string)
