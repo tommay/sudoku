@@ -25,6 +25,10 @@
 # some other strategies that can be implemenmted which should reduce
 # guessing.
 
+require "rubygems"
+require "bundler/setup"
+require "celluloid"
+
 class Puzzle
   # filename: optional file to load a setup from
   # setup: a string containing a digit from 1-9 or "-" for each position. 
