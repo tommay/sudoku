@@ -26,6 +26,15 @@
 # guessing.
 
 class Puzzle
+  @@stats = {
+    guesses: 0, backouts: 0, missing: [0,0],
+    forced: [0,0], forced2: 0, tricky: [0,0],
+  }
+
+  def self.stats
+    @@stats
+  end
+
   # filename: optional file to load a setup from
   # setup: a string containing a digit from 1-9 or "-" for each position. 
 
@@ -150,6 +159,9 @@ class Puzzle
           true
         end
       end
+    end.tap do |result|
+      @@stats[:missing][0] += 1 if result
+      @@stats[:missing][1] += 1
     end
   end
 
@@ -161,6 +173,9 @@ class Puzzle
         position.place(position.possible.first)
         true
       end
+    end.tap do |result|
+      @@stats[:forced][0] += 1 if result
+      @@stats[:forced][1] += 1
     end
   end
 
@@ -196,10 +211,12 @@ class Puzzle
     when next_position.possible.empty?
       # Failed.  No solution to return.
       puts "Backing out."
+      @@stats[:backouts] += 1
     when next_position.possible.size == 1
       # Found an unplaced position with only one possibility.
       # Place it and iterate by calling solve recursively.
       puts "placing forced #{next_position.possible.first} in position #{next_position.number}"
+      @@stats[:forced2] += 1
       print_puzzle
       next_position.place(next_position.possible.first)
       solve(yielder)
@@ -208,6 +225,7 @@ class Puzzle
       # each possibility recursively, and yield any solutions we find.
       next_position.possible.each do |digit|
         puts "trying #{digit} in position #{next_position.number} #{next_position.possible}"
+        @@stats[:guesses] += 1
         puzzle = Puzzle.new(setup: to_string)
         puzzle.position(next_position.number).place(digit)
         puzzle.solve(yielder)
@@ -234,6 +252,9 @@ class Puzzle
           end
         end
       end
+    end.tap do |result|
+      @@stats[:tricky][0] += 1 if result
+      @@stats[:tricky][1] += 1
     end
   end
 
@@ -354,4 +375,5 @@ if __FILE__ == $0
     Puzzle.new(filename: ARGV[0]).solve(yielder)
   end.to_a.size
   puts "#{count} solutions"
+  puts Puzzle.stats
 end
