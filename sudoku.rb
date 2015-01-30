@@ -176,10 +176,10 @@ class Puzzle
     end
 
     # We get here either because we're done, we've failed, or we have
-    # to guess and recurse.  We can distinguish examining the position
-    # with the fewest possibilities remaining.  Note that if there is
-    # a Position with only one possibility then place_one_forced would
-    # already have placed a digit there.
+    # to guess and recurse.  We can distinguish by examining the
+    # position with the fewest possibilities remaining.  Note that if
+    # there is a Position with only one possibility then
+    # place_one_forced would already have placed a digit there.
 
     next_position = @positions.min_by do |position|
       if position.placed?
