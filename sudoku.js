@@ -15,44 +15,44 @@ function Puzzle(setup) {
     // Create the Positions.
 
     self.positions = iota(81).map(function (n) {
-	return new Position(self, n);
+        return new Position(self, n);
     });
 
     // Create an ExclusionSet for each row, containing the Positions
     // in the row.
 
     var rows = iota(9).map(function (row) {
-	return new ExclusionSet(
-	    "row " + row,
-	    iota(9).map(function (col) {
-		return self.positions[row*9 + col];
-	    })
-	);
+        return new ExclusionSet(
+            "row " + row,
+            iota(9).map(function (col) {
+                return self.positions[row*9 + col];
+            })
+        );
     });
 
     // Create an ExclusionSet for each column.
 
     var cols = iota(9).map(function (col) {
-	return new ExclusionSet(
-	    "column " + col,
-	    iota(9).map(function (row) {
-		return self.positions[row*9 + col];
-	    })
-	);
+        return new ExclusionSet(
+            "column " + col,
+            iota(9).map(function (row) {
+                return self.positions[row*9 + col];
+            })
+        );
     });
 
     // Create an ExclusionSet for each square.
 
     var squares = iota(9).map(function (square) {
-	// row and col of upper left corner of square
-	var row = ((square / 3)|0) * 3;
-	var col = square % 3 * 3;
-	return new ExclusionSet(
-	    "square " + square,
-	    iota(9).map(function (n) {
-		return self.positions[(row + n/3|0)*9 + (col + n%3)];
-	    })
-	);
+        // row and col of upper left corner of square
+        var row = ((square / 3)|0) * 3;
+        var col = square % 3 * 3;
+        return new ExclusionSet(
+            "square " + square,
+            iota(9).map(function (n) {
+                return self.positions[(row + n/3|0)*9 + (col + n%3)];
+            })
+        );
     });
 
     self.exclusion_sets = rows.concat(cols).concat(squares);
@@ -64,13 +64,13 @@ function Puzzle(setup) {
     // may contain duplicates but that doesn't matter.
 
     self.positions.forEach(function(position) {
-	position.set_exclusive_positions(
-	    self.exclusion_sets.filter(function (set) {
-		return set.contains(position);
-	    }).flatMap(function (set) {
-		return set.positions;
-	    }).minus([position])
-	);
+        position.set_exclusive_positions(
+            self.exclusion_sets.filter(function (set) {
+                return set.contains(position);
+            }).flatMap(function (set) {
+                return set.positions;
+            }).minus([position])
+        );
     });
 
     // Within a square, if the only possible places for a given digit
@@ -83,24 +83,24 @@ function Puzzle(setup) {
     // Positions of that square.
 
     self.tricky_sets = rows.concat(cols).product(squares).flatMap(
-	function(args) {
-	    var row = args.shift();
-	    var square = args.shift();
-	    var common = row.positions.intersect(square.positions);
-	    if (!common.is_empty()) {
-		// Each Array in self.tricky_sets contains three
-		// ExclusionSets.  If a digit is possible in the first
-		// set but not the second, it will be set to "not
-		// possible" in the third.
-		return [
-		    [common, square.positions.minus(common), row.positions.minus(common)],
-		    [common, row.positions.minus(common), square.positions.minus(common)]
-		];
-	    }
-	    else {
-		return [];
-	    }
-	}
+        function(args) {
+            var row = args.shift();
+            var square = args.shift();
+            var common = row.positions.intersect(square.positions);
+            if (!common.is_empty()) {
+                // Each Array in self.tricky_sets contains three
+                // ExclusionSets.  If a digit is possible in the first
+                // set but not the second, it will be set to "not
+                // possible" in the third.
+                return [
+                    [common, square.positions.minus(common), row.positions.minus(common)],
+                    [common, row.positions.minus(common), square.positions.minus(common)]
+                ];
+            }
+            else {
+                return [];
+            }
+        }
     );
 
     // Set initial pattern.
@@ -110,13 +110,13 @@ function Puzzle(setup) {
     // end
 
     setup.split("").zip(self.positions).forEach(function (args) {
-	var c = args.shift();
-	var position = args.shift();
-	if (c !== "-") {
+        var c = args.shift();
+        var position = args.shift();
+        if (c !== "-") {
             console.log("placing initial " + c +
-			" in position " + position.number);
+                        " in position " + position.number);
             position.place(Number(c));
-	}
+        }
     });
 };
 
@@ -128,20 +128,20 @@ Puzzle.prototype.place_one_missing = function () {
     // placed.  This is pretty inefficient since it has to look
     // through all the digits and positions repeatedly but so what.
     return range(1, 9).some(function (digit) {
-	return self.exclusion_sets.some(function (set) {
-	    // Does the set contain only one position that allows the
-	    // digit?
-	    var positions_for_digit = set.possible_positions(digit);
-	    if (positions_for_digit.length === 1) {
-		console.log("placing missing " + digit +
-			    " from " + set + " in position " +
-			    positions_for_digit[0].number);
-		self.print_puzzle();
-		
-		positions_for_digit[0].place(digit);
-		return true;
-	    }
-	});
+        return self.exclusion_sets.some(function (set) {
+            // Does the set contain only one position that allows the
+            // digit?
+            var positions_for_digit = set.possible_positions(digit);
+            if (positions_for_digit.length === 1) {
+                console.log("placing missing " + digit +
+                            " from " + set + " in position " +
+                            positions_for_digit[0].number);
+                self.print_puzzle();
+                
+                positions_for_digit[0].place(digit);
+                return true;
+            }
+        });
     });
 };
 
@@ -149,13 +149,13 @@ Puzzle.prototype.place_one_forced = function() {
     var self = this;
 
     return self.positions.some(function (position) {
-	if (!position.placed && position.possible.length === 1) {
-	    console.log("placing forced " + position.possible[0] +
-			" in position " + position.number);
-	    self.print_puzzle();
-	    position.place(position.possible[0]);
-	    return true;
-	}
+        if (!position.placed && position.possible.length === 1) {
+            console.log("placing forced " + position.possible[0] +
+                        " in position " + position.number);
+            self.print_puzzle();
+            position.place(position.possible[0]);
+            return true;
+        }
     });
 };
 
@@ -171,7 +171,7 @@ Puzzle.prototype.solve = function() {
     // would though.  Oh well.
 
     while (self.place_one_missing() || self.place_one_forced() || self.eliminate_with_tricky_sets()) {
-	// Empty.
+        // Empty.
     }
 
     // We get here either because we're done, we've failed, or we have
@@ -181,60 +181,60 @@ Puzzle.prototype.solve = function() {
     // place_one_forced would already have placed a digit there.
 
     var next_position = self.positions.min_by(function (position) {
-	return position.placed ? 10 : position.possible.length;
+        return position.placed ? 10 : position.possible.length;
     });
 
     if (next_position.placed) {
-	// Solved.  Return this as a solution.
-	console.log("Solved:");
-	self.print_puzzle();
-	return [self];
+        // Solved.  Return this as a solution.
+        console.log("Solved:");
+        self.print_puzzle();
+        return [self];
     }
     else if (next_position.possible.is_empty()) {
-	// Failed.  No solution to return.
-	console.log("Backing out.");
-	return [];
+        // Failed.  No solution to return.
+        console.log("Backing out.");
+        return [];
     }
     else {
-	// Found an unplaced position with possibilities.  Guess each
-	// possibility recursively, and return any solutions we find.
-	return next_position.possible.flatMap(function (digit) {
-	    console.log("trying " + digit + " in position " +
-			next_position.number + " " +
-			next_position.possible);
-	    var puzzle = new Puzzle(self.to_string());
-	    puzzle.position(next_position.number).place(digit);
-	    return puzzle.solve();
-	});
+        // Found an unplaced position with possibilities.  Guess each
+        // possibility recursively, and return any solutions we find.
+        return next_position.possible.flatMap(function (digit) {
+            console.log("trying " + digit + " in position " +
+                        next_position.number + " " +
+                        next_position.possible);
+            var puzzle = new Puzzle(self.to_string());
+            puzzle.position(next_position.number).place(digit);
+            return puzzle.solve();
+        });
     }
 };
 
 Puzzle.prototype.eliminate_with_tricky_sets = function () {
     this.tricky_sets.some(function (args) {
-	subset = args.shift();
-	rest_of_set = args.shift();
-	elimination_set = args.shift();
-	subset.flatMap(function (position) {
-	    if (position.placed) {
-		return [];
-	    }
-	    else {
-		return position.possible;
-	    }
-	}).uniq().filter(function (digit) {
-	    return !rest_of_set.some(function (position) {
-		return position.is_possible_for(digit);
-	    });
-	}).some(function (digit) {
-	    elimination_set.some(function (position) {
-		if (position.is_possible_for(digit)) {
-		    console.log("eliminating " + digit + " from position " +
-				position.number);
-		    position.not_possible(digit);
-		    return true;
-		}
-	    });
-	});
+        subset = args.shift();
+        rest_of_set = args.shift();
+        elimination_set = args.shift();
+        subset.flatMap(function (position) {
+            if (position.placed) {
+                return [];
+            }
+            else {
+                return position.possible;
+            }
+        }).uniq().filter(function (digit) {
+            return !rest_of_set.some(function (position) {
+                return position.is_possible_for(digit);
+            });
+        }).some(function (digit) {
+            elimination_set.some(function (position) {
+                if (position.is_possible_for(digit)) {
+                    console.log("eliminating " + digit + " from position " +
+                                position.number);
+                    position.not_possible(digit);
+                    return true;
+                }
+            });
+        });
     });
 };
 
@@ -245,21 +245,21 @@ Puzzle.prototype.position = function (number) {
 Puzzle.prototype.print_puzzle = function() {
     var result = "";
     this.to_string().split("").each_slice(27, function(rows) {
-	rows.each_slice(9, function(row) {
+        rows.each_slice(9, function(row) {
             row.each_slice(3, function (digits) {
-		result += digits.join("");
-		result += " ";
-	    });
-	    result += "\n";
-	});
-	result += "\n";
+                result += digits.join("");
+                result += " ";
+            });
+            result += "\n";
+        });
+        result += "\n";
     });
     process.stdout.write(result);
 };
 
 Puzzle.prototype.to_string = function () {
     return this.positions.map(function (position) {
-	return position.digit_or_dash();
+        return position.digit_or_dash();
     }).join("");
 };
 
@@ -293,7 +293,7 @@ Position.prototype.place = function(digit) {
     this.placed = digit;
     this.possible = [digit];
     this.exclusive_positions.forEach(function (position) {
-	position.not_possible(digit);
+        position.not_possible(digit);
     });
 };
 
@@ -332,7 +332,7 @@ ExclusionSet.prototype.contains = function(position) {
 
 ExclusionSet.prototype.possible_positions = function(digit) {
     return this.positions.filter(function (position) {
-	return !position.placed && position.is_possible_for(digit);
+        return !position.placed && position.is_possible_for(digit);
     });
 };
 
@@ -342,49 +342,49 @@ Array.prototype.flatMap = function(lambda) {
 
 Array.prototype.product = function(that) {
     return this.flatMap(function (x) {
-	return that.map(function (y) { return [x, y] });
+        return that.map(function (y) { return [x, y] });
     });
 };
 
 if (!Array.prototype.contains) {
     Array.prototype.contains = function(e) {
-	return this.indexOf(e) != -1;
+        return this.indexOf(e) != -1;
     }
 }
 
 Array.prototype.intersect = function(other) {
     return this.reduce(
-	function (accum, e) {
-	    if (other.contains(e)) {
-		accum.push(e);
-	    }
-	    return accum;
-	},
-	[]);
+        function (accum, e) {
+            if (other.contains(e)) {
+                accum.push(e);
+            }
+            return accum;
+        },
+        []);
 };
 
 Array.prototype.minus = function(other) {
     return this.reduce(
-	function (accum, e) {
-	    if (!other.contains(e)) {
-		accum.push(e);
-	    }
-	    return accum;
-	},
-	[]);
+        function (accum, e) {
+            if (!other.contains(e)) {
+                accum.push(e);
+            }
+            return accum;
+        },
+        []);
 };
 
 Array.prototype.min_by = function(map) {
     return this.reduce(
-	function (accum, e) {
-	    var n = map(e);
-	    if (accum.n === undefined || n < accum.n) {
-		accum.n = n;
-		accum.obj = e;
-	    }
-	    return accum;
-	},
-	{ obj: undefined, n: undefined}
+        function (accum, e) {
+            var n = map(e);
+            if (accum.n === undefined || n < accum.n) {
+                accum.n = n;
+                accum.obj = e;
+            }
+            return accum;
+        },
+        { obj: undefined, n: undefined}
     ).obj;
 };
 
@@ -396,34 +396,34 @@ Array.prototype.is_empty = function() {
 // share an index go together.
 Array.prototype.zip = function(other) {
     return this.reduce(
-	function (accum, e, i) {
-	    accum.push([e, other[i]]);
-	    return accum;
-	},
-	[]);
+        function (accum, e, i) {
+            accum.push([e, other[i]]);
+            return accum;
+        },
+        []);
     };
 
 Array.prototype.uniq = function() {
     return this.reduce(
-	function (accum, e) {
-	    if (!accum.contains(e)) {
-		accum.push(e);
-	    }
-	    return accum;
-	},
-	[]);
+        function (accum, e) {
+            if (!accum.contains(e)) {
+                accum.push(e);
+            }
+            return accum;
+        },
+        []);
     };
 
 Array.prototype.each_slice = function(size, func) {
     for (var i = 0; i < this.length; i += size) {
-	func(this.slice(i, i + size));
+        func(this.slice(i, i + size));
     }
 };
 
 function range(n1, n2) {
     var result = [];
     for (var i = n1; i <= n2; i++) {
-	result.push(i);
+        result.push(i);
     }
     return result;
 };
@@ -435,7 +435,7 @@ function iota(n) {
 function iota_map(n, func) {
     var result = [];
     for (var i = 0; i < n; i++) {
-	result.push(func(n));
+        result.push(func(n));
     }
     return result;
 };
