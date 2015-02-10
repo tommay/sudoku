@@ -252,6 +252,11 @@ class ExclusionSet
   possible_positions: (digit) ->
     (p for p in @positions when !p.placed && p.is_possible_for(digit))
 
+# This "should" work, but produces an array with the wrong flatness.
+# I wonder if Harmony does any better.
+#Array::product = (other) ->
+#  ([a, b] for a in @ for b in other)
+
 Array::flatMap = (lambda) ->
   Array::concat.apply([], @map(lambda))
 
