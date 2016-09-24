@@ -26,9 +26,43 @@
 # guessing.
 
 class Puzzle
+  # Here we collect some information about how things go, what works
+  # and what doesn't, etc.
+  #
   @@stats = {
-    guesses: 0, backouts: 0, missing: [0,0],
-    forced: [0,0], forced2: 0, tricky: [0,0],
+    # The number of times we placed a digit because it was the only
+    # digit missing from a row, column, or square.  The second element
+    # is the number of calls to place_one_missing, the first is how
+    # many times it succeeded:
+    # Note that if a cell is "missing", it will also be "forced", but it's
+    # easier for a person to find missing digits than forced digits.
+
+    missing: [0, 0],
+
+    # The number of times we placed a digit because it's the only remaining
+    # possibility for that cell.  The second element is the number of calls
+    # to place_one_forced, the first is how many times it succeeded:
+
+    forced: [0, 0],
+
+    # The second element is the number of times eliminate_with_tricky_sets
+    # the first is how may times it was called:
+
+    tricky: [0, 0],
+
+    # The number of times we had to guess:
+
+    guesses: 0,
+
+    # The number of guesses that ended up failing:
+
+    backouts: 0,
+
+    # The number of times we thought we had to guess but there was only
+    # one possible guess.  That should never happen since it should have
+    # been caught by place_one_forced so this should be zero:
+
+    forced2: 0,
   }
 
   def self.stats
