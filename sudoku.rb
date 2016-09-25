@@ -176,20 +176,21 @@ class Puzzle
   end
 
   def place_one_missing
-    # Try to place a digit where there is only one Position in the set
-    # where it can possibly go, and return true if a digit was placed.
-    # This is pretty inefficient since it has to look through all the
-    # digits and positions repeatedly but so what.
-    (1..9).any? do |digit|
-      @exclusion_sets.any? do |set|
-        # Does the set contain only one position that allows the digit?
-        positions_for_digit = set.possible_positions(digit)
-        if positions_for_digit.size == 1
-          puts "placing missing #{digit} from #{set} in position #{positions_for_digit.first.number}"
+    # Try to place a digit where a set has only one unplaced position.
+    @exclusion_sets.any? do |set|
+      unplaced_positions = set.select{|position| !position.placed?}
+      if unplaced_positions.size == 1
+        position = unplaced_positions.first
+        # Note there should be only one possible digit, but if we guessed
+        # wrong then this method will be called before we figure that out
+        # so we have to check it.
+        digit = position.possible.first
+        if digit
+          puts "placing missing #{digit} from #{set} in position #{position.number}"
           #puts set.map{|x| x.number}.to_s
           print_puzzle
   
-          positions_for_digit.first.place(digit)
+          position.place(digit)
           true
         end
       end
@@ -393,10 +394,8 @@ class ExclusionSet
     @positions.include?(position)
   end
 
-  def possible_positions(digit)
-    @positions.select do |position|
-      !position.placed? && position.possible?(digit)
-    end
+  def select(&block)
+    @positions.select(&block)
   end
 
   def positions
