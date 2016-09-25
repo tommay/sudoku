@@ -39,6 +39,13 @@ class Puzzle
 
     missing: [0, 0],
 
+    # The number of times we placed a digit because the set was
+    # missing a digit and there was only one place it could go.  The
+    # second element is the number of calls to place_one_needed, the
+    # first is how many times it succeeded:
+
+    needed: [0, 0],
+
     # The number of times we placed a digit because it's the only remaining
     # possibility for that cell.  The second element is the number of calls
     # to place_one_forced, the first is how many times it succeeded:
@@ -200,6 +207,31 @@ class Puzzle
     end
   end
 
+  def place_one_needed
+    # Try to place a digit where there a set doesn't yet have a digit
+    # (it needs it) and there is only one Position in the set where it
+    # can possibly go, and return true if a digit was placed.  This is
+    # pretty inefficient since it has to look through all the digits
+    # and positions repeatedly but so what.
+    (1..9).any? do |digit|
+      @exclusion_sets.any? do |set|
+        # Does the set contain only one position that allows the digit?
+        positions_for_digit = set.possible_positions(digit)
+        if positions_for_digit.size == 1
+          puts "placing needed #{digit} from #{set} in position #{positions_for_digit.first.number}"
+          #puts set.map{|x| x.number}.to_s
+          print_puzzle
+  
+          positions_for_digit.first.place(digit)
+          true
+        end
+      end
+    end.tap do |result|
+      @@stats[:needed][0] += 1 if result
+      @@stats[:needed][1] += 1
+    end
+  end
+
   def place_one_forced
     @positions.any? do |position|
       if !position.placed && position.possible.size == 1
@@ -222,7 +254,8 @@ class Puzzle
     # if we can't do either we run the tricky sets elimination.  This doesn't
     # actually end up doing things like I would though.  Oh well.
 
-    while place_one_missing || place_one_forced || eliminate_with_tricky_sets
+    while place_one_missing || place_one_needed ||
+          place_one_forced || eliminate_with_tricky_sets
     end
 
     # We get here either because we're done, we've failed, or we have
@@ -396,6 +429,12 @@ class ExclusionSet
 
   def select(&block)
     @positions.select(&block)
+  end
+
+  def possible_positions(digit)
+    @positions.select do |position|
+      !position.placed? && position.possible?(digit)
+    end
   end
 
   def positions
